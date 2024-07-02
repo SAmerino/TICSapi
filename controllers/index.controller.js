@@ -141,29 +141,32 @@ const conexionDisp = async(req, res) => {
 const obtenerDispositivos = async (req, res) => {
     const id = req.params.id;
     try {
-        const query = "SELECT P.nombre AS Nombre, P.hum_gnd AS Humedad_Suelo, P.hum_air AS Humedad_Aire, P.temp AS Temperatura, PM.ubicacion AS Ubicacion, DC.codigo_disp AS Codigo_Dispositivo FROM  Plantas_Monitoreadas AS PM LEFT JOIN Plantas AS P ON PM.id_plantas = P.id LEFT JOIN dispositivocliente AS DC ON PM.codigo_disp = DC.codigo_disp WHERE DC.cliente_id = $1";
- 
+        const query = "SELECT P.nombre AS Nombre, P.hum_gnd AS Humedad_Suelo, P.hum_air AS Humedad_Aire, P.temp AS Temperatura, PM.ubicacion AS Ubicacion, DC.codigo_disp AS Codigo_Dispositivo FROM Plantas_Monitoreadas AS PM LEFT JOIN Plantas AS P ON PM.id_plantas = P.id LEFT JOIN dispositivocliente AS DC ON PM.codigo_disp = DC.codigo_disp WHERE DC.cliente_id = $1";
+
         const { rows } = await pool.query(query, [id]);
 
         const dispositivos = rows.map(dispositivo => {
             Object.keys(dispositivo).forEach(key => {
                 if (dispositivo[key] === null) {
-                    dispositivo[key] = '---';
+                    dispositivo[key] = '---'; // Asegurar que no se muestren valores nulos
                 }
             });
             return dispositivo;
         });
 
         console.log("Funcionó plantas, ID:", id);
+        console.log(dispositivos); // Correcto uso de console.log para imprimir el array de dispositivos
+
         res.status(200).json({
             success: true,
-            dispositivos: dispositivos // Utiliza los datos procesados
+            dispositivos: dispositivos // Envío correcto de dispositivos procesados
         });
     } catch (error) {
         console.error('Error al recuperar dispositivos:', error);
         res.status(500).json({ success: false, message: 'Error del servidor' });
     }
 };
+
 
 const configurarDispositivo = async (req, res) => {
     const { dispositivoId, ubicacion, idTipoPlanta } = req.body;
@@ -192,29 +195,138 @@ const datafake = async(req, res) => {
         humedad_suelo: humedadSueloFalsa,
         humedad_aire: humedadAireFalsa
     };
-
+    console.log('datafake');
     // Envía la respuesta
     res.json(datafake);
 };
 
 const data = async (req, res) => {
-    // Datos de prueba
+    // Datos de prueba en el nuevo formato
     const sensorData = [
-        { time: '2024-06-23T08:00:00.000Z', temperature: 22.1 },
-        { time: '2024-06-23T08:05:00.000Z', temperature: 22.3 },
-        { time: '2024-06-23T08:10:00.000Z', temperature: 22.7 },
-        { time: '2024-06-23T08:15:00.000Z', temperature: 23.0 },
-        { time: '2024-06-23T08:20:00.000Z', temperature: 23.5 },
-        { time: '2024-06-23T08:25:00.000Z', temperature: 23.8 },
-        { time: '2024-06-23T08:30:00.000Z', temperature: 24.1 },
-        { time: '2024-06-23T08:35:00.000Z', temperature: 24.4 },
-        { time: '2024-06-23T08:40:00.000Z', temperature: 24.8 },
-        { time: '2024-06-23T08:45:00.000Z', temperature: 25.0 }
+        {
+            "id": 2,
+            "id_dispositivo": 1,
+            "timestamp": "2024-07-01T19:00:00.000Z",
+            "hum_gnd": 40,
+            "hum_air": 10,
+            "temp": 21,
+            "luz": 150
+        },
+        {
+            "id": 3,
+            "id_dispositivo": 1,
+            "timestamp": "2024-07-01T19:30:00.000Z",
+            "hum_gnd": 45,
+            "hum_air": 9,
+            "temp": 21,
+            "luz": 150
+        },
+        {
+            "id": 4,
+            "id_dispositivo": 1,
+            "timestamp": "2024-07-01T20:00:00.000Z",
+            "hum_gnd": 47,
+            "hum_air": 9,
+            "temp": 19,
+            "luz": 140
+        },
+        {
+            "id": 5,
+            "id_dispositivo": 1,
+            "timestamp": "2024-07-01T20:30:00.000Z",
+            "hum_gnd": 54,
+            "hum_air": 50,
+            "temp": 19,
+            "luz": 130
+        },
+        {
+            "id": 6,
+            "id_dispositivo": 1,
+            "timestamp": "2024-07-01T21:00:00.000Z",
+            "hum_gnd": 52,
+            "hum_air": 45,
+            "temp": 18,
+            "luz": 120
+        },
+        {
+            "id": 7,
+            "id_dispositivo": 1,
+            "timestamp": "2024-07-01T21:30:00.000Z",
+            "hum_gnd": 58,
+            "hum_air": 42,
+            "temp": 17,
+            "luz": 110
+        },
+        {
+            "id": 8,
+            "id_dispositivo": 1,
+            "timestamp": "2024-07-01T22:00:00.000Z",
+            "hum_gnd": 55,
+            "hum_air": 37,
+            "temp": 16,
+            "luz": 100
+        },
+        {
+            "id": 9,
+            "id_dispositivo": 1,
+            "timestamp": "2024-07-01T22:30:00.000Z",
+            "hum_gnd": 50,
+            "hum_air": 30,
+            "temp": 15,
+            "luz": 90
+        },
+        {
+            "id": 11,
+            "id_dispositivo": 1,
+            "timestamp": "2024-07-02T01:00:00.000Z",
+            "hum_gnd": 100,
+            "hum_air": 110,
+            "temp": 120,
+            "luz": 130
+        },
+        {
+            "id": 12,
+            "id_dispositivo": 1,
+            "timestamp": "2024-07-02T03:30:00.000Z",
+            "hum_gnd": 15,
+            "hum_air": 10,
+            "temp": 30,
+            "luz": 50
+        },
+        // Nuevas entradas añadidas
+        {
+            "id": 13,
+            "id_dispositivo": 1,
+            "timestamp": "2024-07-02T04:00:00.000Z",
+            "hum_gnd": 12,
+            "hum_air": 15,
+            "temp": 28,
+            "luz": 60
+        },
+        {
+            "id": 14,
+            "id_dispositivo": 1,
+            "timestamp": "2024-07-02T04:30:00.000Z",
+            "hum_gnd": 18,
+            "hum_air": 20,
+            "temp": 27,
+            "luz": 70
+        },
+        {
+            "id": 15,
+            "id_dispositivo": 1,
+            "timestamp": "2024-07-02T05:00:00.000Z",
+            "hum_gnd": 20,
+            "hum_air": 25,
+            "temp": 25,
+            "luz": 80
+        }
     ];
-    console.log("data");
+
     // Responder con los datos en formato JSON
     res.status(200).json(sensorData);
 };
+
 
 const nombresPlantas = async (req, res) => {
     try {
